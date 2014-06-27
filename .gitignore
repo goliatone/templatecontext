@@ -79,3 +79,5 @@ results
 npm-debug.log
 node_modules
 
+### Project Cruft
+lib
