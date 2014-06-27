@@ -1,0 +1,30 @@
+{
+  "name": "templatecontext",
+  "version": "0.1.0",
+  "description": "Template context manager",
+  "homepage": "https://github.com/goliatone/templatecontext",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/goliatone/templatecontext.git"
+	},
+	 "bugs": {
+		"url": "https://github.com/goliatone/templatecontext/issues"
+	},
+	"author": {
+		"name": "goliatone",
+		"email": "hello@goliatone.com",
+		"url": "http://goliatone.com"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/goliatone/templatecontext/blob/master/LICENSE-MIT"
+		}
+	],
+  "dependencies": {
+    "jquery": "~1.9.1",
+    "requirejs": "~2.1.4"
+  },
+  "devDependencies": {
+  }
+}
