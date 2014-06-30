@@ -18,7 +18,9 @@ requirejs.config({
     baseUrl: '/base/src',
 
     paths: {
-
+        'extend': '../lib/gextend/extend',
+        'keypath': '../lib/gkeypath/keypath',
+        'templatecontext': 'templatecontext'
     },
 
     // ask Require.js to load these files (all our tests)
