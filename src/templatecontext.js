@@ -80,10 +80,10 @@
      * @param  {object} config Configuration object.
      */
     var TemplateContext = function(config) {
+        // this.ID = Date.now();
         config = config || {};
 
         config = _extend({}, this.constructor.DEFAULTS, config);
-
         this.init(config);
     };
 
@@ -92,7 +92,9 @@
      * can override.
      */
     TemplateContext.DEFAULTS = {
-
+        changeEventGlue: '.',
+        changeEventType: 'change',
+        updateEventType: 'update'
     };
 
     ///////////////////////////////////////////////////
@@ -109,7 +111,7 @@
         if (this.initialized) return this.logger.warn('Already initialized');
         this.initialized = true;
 
-        console.log('TemplateContext: Init!');
+        this.logger.log('TemplateContext: Init!');
 
         this.data = {};
         this.source = {};
@@ -123,18 +125,40 @@
     };
 
     /**
-     * [set description]
-     * @param {[type]} path  [description]
-     * @param {[type]} value [description]
+     * Set `path` value. It will trigger
+     * events in case there are registered
+     * listeners.
+     *
+     *
+     * @param {String} path  Path to property.
+     *                       It can be a `keypath`.
+     * @param {Mixed} value  Any value we want to store
+     *                       in `path`.
      */
     TemplateContext.prototype.set = function(path, value) {
-        // var old = this.get(path)
-        this.data[path] = value;
+        var old = this.get(path, undefined),
+            evt = {
+                old: old,
+                value: value,
+                property: path
+            };
+
+        _keypath(this.data, path, value);
+
+        //Generic change event: change
+        this.emit(this.eventType(this.changeEventType), evt);
+        //Targeted change event: change.user.name
+        this.emit(this.eventType(this.changeEventType, path), evt);
+
         return this;
     };
 
-    TemplateContext.prototype.get = function(path, def) {
+    TemplateContext.prototype.get = function(path, defaultValue) {
+        return _keypath(this.data, path, defaultValue);
+    };
 
+    TemplateContext.prototype.has = function(path) {
+        return this.get(path, '__-UNDEF-__') !== '__-UNDEF-__';
     };
 
     /**
@@ -149,39 +173,44 @@
         return this;
     };
 
-    /**
-     * Update
-     * @param  {[type]} data  [description]
-     * @param  {[type]} state [description]
-     * @return {[type]}       [description]
-     */
+
     TemplateContext.prototype.update = function(data, state) {
 
         var source = state === true ? {} : this.data;
-
-        this.data = extend(source, this.defaults, this.formatters, data);
-
+        // console.log('UPDATE', source)
+        this.data = _extend(source, this.defaults, this.formatters, data);
+        // console.log('POSTUPDATE', this.data)
         if (typeof state === 'string') this.merge(state);
-        this.emit('change');
+
+        this.emit(this.eventType(this.updateEventType));
+
 
         return this.data;
     };
 
     TemplateContext.prototype.merge = function(state, fresh) {
         if (!this.states.hasOwnProperty(state)) return false;
-        var data = this.states[state];
-        var source = fresh === true ? {} : this.data;
-        this.data = extend(source, this.defaults, this.formatters, data);
 
-        this.emit('change.' + state);
+        var data = this.states[state];
+
+        var source = fresh === true ? {} : this.data;
+
+        this.data = _extend(source, this.defaults, this.formatters, data);
+
+        this.emit(this.eventType(this.updateEventType, state));
 
         return true;
     };
 
     TemplateContext.prototype.applyTransforms = function(transformId) {
         if (!this.transforms.hasOwnProperty(transformId)) return;
+
         var transform = this.transforms[transformId];
-        this.data = transform.call(this, this.data);
+
+        // this.data = transform.call(this, this.data);
+        transform.call(this, this.data);
+
+        return this;
     };
 
     /**
@@ -196,6 +225,11 @@
      * @return {[type]} [description]
      */
     TemplateContext.prototype.emit = function() {};
+
+    TemplateContext.prototype.eventType = function(type, path) {
+        if (!path) return type;
+        return [type, this.changeEventGlue, path];
+    };
 
     return TemplateContext;
 }));
