@@ -35,7 +35,7 @@
             return mod;
         };
     }
-}(this, "templatecontext", function() {
+}(this, "templatecontext", ['keypath', 'extend'], function(keypath, extend) {
 
     /**
      * Extend method.
@@ -43,19 +43,7 @@
      * @return {Object}        Resulting object from
      *                         meging target to params.
      */
-    var _extend = function extend(target) {
-        var sources = [].slice.call(arguments, 1);
-        sources.forEach(function(source) {
-            for (var property in source) {
-                if (source[property] && source[property].constructor &&
-                    source[property].constructor === Object) {
-                    target[property] = target[property] || {};
-                    target[property] = extend(target[property], source[property]);
-                } else target[property] = source[property];
-            }
-        });
-        return target;
-    };
+    var _extend = extend;
 
     /**
      * Shim console, make sure that if no console
@@ -78,6 +66,8 @@
 
         return con;
     };
+
+    var _keypath = keypath;
 
 
     ///////////////////////////////////////////////////
@@ -138,7 +128,7 @@
      * @param {[type]} value [description]
      */
     TemplateContext.prototype.set = function(path, value) {
-        //TODO: Make keypath setter!
+        // var old = this.get(path)
         this.data[path] = value;
         return this;
     };
