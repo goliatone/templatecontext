@@ -2,13 +2,14 @@
 /* jshint strict: false */
 requirejs.config({
     paths: {
-        'jquery': 'jquery/jquery',
+        'extend': 'gextend/extend',
+        'keypath': 'gkeypath/keypath',
         'templatecontext': 'templatecontext'
     }
 });
 
-define(['templatecontext', 'jquery'], function (templatecontext, $) {
+define(['templatecontext'], function(templatecontext) {
     console.log('Loading');
-	var templatecontext = new templatecontext();
-	templatecontext.init();
+    var templatecontext = new templatecontext();
+    templatecontext.init();
 });
