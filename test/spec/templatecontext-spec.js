@@ -168,18 +168,6 @@ define(['templatecontext'], function(TemplateContext) {
         });
 
         it('we can add default values', function() {
-            context = new TemplateContext({
-                defaults: {
-                    firstname: 'firstName1',
-                    lastname: 'lastName1',
-                    email: 'email1',
-                    address: {
-                        street: 'Street 1',
-                        zip: '00000'
-                    }
-                }
-            });
-
             var expected = {
                 firstname: 'firstName1',
                 lastname: 'lastName1',
@@ -189,9 +177,48 @@ define(['templatecontext'], function(TemplateContext) {
                     zip: '00000'
                 }
             };
+            context = new TemplateContext({
+                defaults: expected
+            });
 
-            var out = conetxt.update({});
-            expect(out).toMatchObject(conetxt);
-        })
+            var out = context.update({});
+            expect(out).toMatchObject(expected);
+        });
+
+        it('we can use defaults to reset before each update or mergeState', function() {
+            var data0 = {
+                firstname: 'firstName0'
+            };
+
+            var data1 = {
+                firstname: 'firstName1'
+            };
+
+            var data2 = {
+                lastname: 'lastName2'
+            };
+
+            var expected = {
+                firstname: 'firstName0',
+                lastname: 'lastName2'
+
+            }
+
+            context = new TemplateContext({
+                defaults: data0
+            });
+
+            var out = context.update({});
+            expect(out).toMatchObject(data0);
+            context.update(data1);
+            context.update(data2);
+            expect(out).toMatchObject(expected);
+        });
+
+        it('mergeState should handle merging states', function() {
+
+        });
+
+
     });
 });
