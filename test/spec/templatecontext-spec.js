@@ -3,6 +3,7 @@ beforeEach:true, sinon:true, spyOn:true , expect:true */
 /* jshint strict: false */
 define(['templatecontext'], function(TemplateContext) {
 
+    var DEFAULTS = TemplateContext.DEFAULTS;
     describe('just checking', function() {
         var context;
         beforeEach(function() {
@@ -11,6 +12,28 @@ define(['templatecontext'], function(TemplateContext) {
 
         it('templatecontext should be loaded', function() {
             expect(TemplateContext).toBeTruthy();
+        });
+
+        it('on create it should be extended with DEFAULT object', function() {
+            expect(TemplateContext.DEFAULTS).toBeTruthy();
+            var properties = Object.keys(TemplateContext.DEFAULTS);
+            properties.forEach(function(property) {
+                expect(context).toHaveProperties(property);
+            });
+        });
+
+        it('config options should override DEFAULTS', function() {
+
+            var properties = Object.keys(TemplateContext.DEFAULTS);
+            var config = {};
+            properties.forEach(function(property) {
+                config[property] = property + '_TST_';
+            });
+            context = new TemplateContext(config);
+
+            properties.forEach(function(property) {
+                expect(context[property]).toBe(property + '_TST_');
+            });
         });
 
         it('update should extend the context object with the passed in data', function() {
@@ -167,6 +190,31 @@ define(['templatecontext'], function(TemplateContext) {
             expect(out).toMatchObject(expected);
         });
 
+        it('applyTransforms should handle undefined transforms', function() {
+            var data = {
+                id: 1
+            };
+
+            var out = context.update(data);
+            context.applyTransforms('removeId');
+
+            expect(out).toMatchObject(data);
+        });
+
+        it('registerFormatter should add registered formatters', function() {
+            var spy = sinon.spy();
+            context.registerFormatter('capitalize', spy);
+            context.update({});
+            expect(context.data).toHaveProperties('capitalize');
+        });
+
+        it('registerFormatter should not add undefined formatters', function() {
+            var spy = sinon.spy();
+            context.registerFormatter('capitalize', null);
+            context.update({});
+            expect(context.data.hasOwnProperty('capitalize')).toBeFalsy();
+        });
+
         it('we can add default values', function() {
             var expected = {
                 firstname: 'firstName1',
@@ -215,10 +263,137 @@ define(['templatecontext'], function(TemplateContext) {
             expect(out).toMatchObject(expected);
         });
 
-        it('mergeState should handle merging states', function() {
+        it('mergeState should handle merging states by state ID', function() {
+            var state0 = {
+                'active': true,
+                'state': 'state0'
+            };
 
+            context = new TemplateContext({
+                states: {
+                    'state0': state0
+                }
+            });
+
+            var expected = state0;
+
+            context.mergeState('state0');
+            var out = context.data;
+            expect(out).toMatchObject(expected);
         });
 
+        it('mergeState should merge multiple states', function() {
+            var state0 = {
+                'active': true,
+                'state': 'state0'
+            };
 
+            var state1 = {
+                'state': 'state1'
+            };
+
+            var expected = {
+                'active': true,
+                'state': 'state1'
+            };
+
+            context = new TemplateContext({
+                states: {
+                    'state0': state0,
+                    'state1': state1
+                }
+            });
+
+            context.mergeState('state0');
+            context.mergeState('state1');
+            var out = context.data;
+
+            expect(out).toMatchObject(expected);
+        });
+
+        it('mergeState should reset source object if second argument is TRUE', function() {
+            var state0 = {
+                'active': true,
+                'state': 'state0'
+            };
+
+            var state1 = {
+                'state': 'state1'
+            };
+
+            context = new TemplateContext({
+                states: {
+                    'state0': state0,
+                    'state1': state1
+                }
+            });
+
+            var expected = state1;
+
+            context.mergeState('state0');
+            context.mergeState('state1', true);
+            var out = context.data;
+            expect(out).toMatchObject(expected);
+        });
+
+        it('provided an emit method, it should notify of changes', function() {
+            var spy = sinon.spy();
+            context = new TemplateContext({
+                emit: spy
+            });
+            var data = {
+                firstname: 'firstName1'
+            };
+
+            var out = context.update(data);
+
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(context.updateEventType);
+        });
+
+        it('eventType should construct event types', function() {
+            expect(context.eventType('type')).toEqual('type');
+        });
+
+        it('eventType should construct event types with attached paths', function() {
+            var glue = context.changeEventGlue,
+                expected = ['type', 'path'].join(glue);
+
+            expect(context.eventType('type', 'path')).toEqual(expected);
+        });
+
+        it('merge should be a shortcut for mergeState', function() {
+            var state1 = {
+                'state': 'state1'
+            };
+
+            var context1 = new TemplateContext({
+                states: {
+                    'state1': state1
+                }
+            });
+
+            var context2 = new TemplateContext({
+                states: {
+                    'state1': state1
+                }
+            });
+
+            var expected = state1;
+
+            context1.merge('state1');
+            context2.mergeState('state1');
+
+            expect(context1).toMatchObject(context2);
+        });
+
+        it('should have an emit stub method', function() {
+            expect(context.emit).toBeTruthy();
+        });
+
+        it('should have an logger stub method', function() {
+            expect(context.logger).toBeTruthy();
+        });
     });
 });
