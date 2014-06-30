@@ -106,7 +106,9 @@
     };
 
     ///////////////////////////////////////////////////
-    // PRIVATE METHODS
+    // PUBLIC METHODS
+    // TODO: Integrate keypath
+    // TODO: setter/getter binding
     ///////////////////////////////////////////////////
     /**
      * Initialization method
@@ -143,6 +145,18 @@
 
     TemplateContext.prototype.get = function(path, def) {
 
+    };
+
+    /**
+     * Register formatter function. It will be available
+     * to all views
+     * @param  {String} id        Formatter identifier
+     * @param  {Function} formatter
+     * @return {this}
+     */
+    TemplateContext.prototype.registerFormatter = function(id, formatter) {
+        this.formatters[id] = formatter;
+        return this;
     };
 
     /**
