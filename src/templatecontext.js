@@ -50,9 +50,12 @@
      * available calls do not generate errors.
      * @return {Object} Console shim.
      */
-    var _shimConsole = function() {
+    var _shimConsole = function(con) {
+
+        if (con) return con;
+
+        con = {};
         var empty = {},
-            con = {},
             noop = function() {},
             properties = 'memory'.split(','),
             methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
@@ -69,6 +72,7 @@
 
     var _keypath = keypath;
 
+    var _slice = [].slice;
 
     ///////////////////////////////////////////////////
     // CONSTRUCTOR
@@ -113,11 +117,15 @@
 
         this.logger.log('TemplateContext: Init!');
 
-        this.data = {};
-        this.source = {};
-        this.states = {};
-        this.formatters = {};
-        this.transforms = {};
+        ['data', 'source', 'states', 'formatters', 'transforms'].forEach(function(key) {
+            this[key] = {};
+        }, this);
+
+        // this.data = {};
+        // this.source = {};
+        // this.states = {};
+        // this.formatters = {};
+        // this.transforms = {};
 
         _extend(this, config || {});
 
@@ -129,6 +137,7 @@
      * events in case there are registered
      * listeners.
      *
+     * TODO: Move set/get/has to plugin?
      *
      * @param {String} path  Path to property.
      *                       It can be a `keypath`.
@@ -169,6 +178,7 @@
      * @return {this}
      */
     TemplateContext.prototype.registerFormatter = function(id, formatter) {
+        if (typeof formatter !== 'function') return this;
         this.formatters[id] = formatter;
         return this;
     };
@@ -180,7 +190,7 @@
         // console.log('UPDATE', source)
         this.data = _extend(source, this.defaults, this.formatters, data);
         // console.log('POSTUPDATE', this.data)
-        if (typeof state === 'string') this.merge(state);
+        if (typeof state === 'string') this.mergeState(state);
 
         this.emit(this.eventType(this.updateEventType));
 
@@ -188,7 +198,7 @@
         return this.data;
     };
 
-    TemplateContext.prototype.merge = function(state, fresh) {
+    TemplateContext.prototype.mergeState = function(state, fresh) {
         if (!this.states.hasOwnProperty(state)) return false;
 
         var data = this.states[state];
@@ -218,7 +228,7 @@
      * mixin. As a placeholder, we use console if available
      * or a shim if not present.
      */
-    TemplateContext.prototype.logger = console || _shimConsole();
+    TemplateContext.prototype.logger = _shimConsole(console);
 
     /**
      * Stub method
@@ -228,7 +238,15 @@
 
     TemplateContext.prototype.eventType = function(type, path) {
         if (!path) return type;
-        return [type, this.changeEventGlue, path];
+        return [type, path].join(this.changeEventGlue);
+    };
+
+
+
+    TemplateContext.prototype.merge = function() {
+        this.logger.warn('TemplateContext: Deprecated notice. Use mergeState instead.');
+        var args = _slice.call(arguments);
+        return this.mergeState.call(this, args);
     };
 
     return TemplateContext;
