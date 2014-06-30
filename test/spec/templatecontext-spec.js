@@ -153,25 +153,11 @@ define(['templatecontext'], function(TemplateContext) {
             });
 
             var data = {
-                id: 1,
-                firstname: 'firstName1',
-                lastname: 'lastName1',
-                email: 'email1',
-                address: {
-                    street: 'Street 1',
-                    zip: '00000'
-                }
+                id: 1
             };
 
             var expected = {
-                UID: 'x1',
-                firstname: 'firstName1',
-                lastname: 'lastName1',
-                email: 'email1',
-                address: {
-                    street: 'Street 1',
-                    zip: '00000'
-                }
+                UID: 'x1'
             };
 
             var out = context.update(data);
@@ -179,7 +165,33 @@ define(['templatecontext'], function(TemplateContext) {
             context.applyTransforms('removeId');
 
             expect(out).toMatchObject(expected);
-
         });
+
+        it('we can add default values', function() {
+            context = new TemplateContext({
+                defaults: {
+                    firstname: 'firstName1',
+                    lastname: 'lastName1',
+                    email: 'email1',
+                    address: {
+                        street: 'Street 1',
+                        zip: '00000'
+                    }
+                }
+            });
+
+            var expected = {
+                firstname: 'firstName1',
+                lastname: 'lastName1',
+                email: 'email1',
+                address: {
+                    street: 'Street 1',
+                    zip: '00000'
+                }
+            };
+
+            var out = conetxt.update({});
+            expect(out).toMatchObject(conetxt);
+        })
     });
 });
