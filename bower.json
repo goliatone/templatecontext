@@ -1,14 +1,24 @@
 {
-  "name": "templatecontext",
-  "version": "0.1.0",
-  "main": "./dist/templatecontext.min.js",
-  "ignore": [
-    "**/.*"
-  ],
-  "dependencies": {
-    "jquery": "~2.0.3",
-    "requirejs": "~2.1.4",
-    "requirejs-text":"2.0.6",
-    "requirejs-domready":"2.0.1"
-  }
+    "name": "templatecontext",
+    "version": "0.1.0",
+    "main": "./src/templatecontext.js",
+    "ignore": [
+        "**/.*"
+    ],
+    "dependencies": {
+        "requirejs": "~2.1.4",
+        "gextend": "latest",
+        "gkeypath": "latest"
+    },
+    "exportsOverride": {
+        "requirejs": {
+            "js": "require.js"
+        },
+        "gextend": {
+            "js": "src/*.js"
+        },
+        "gkeypath": {
+            "js": "src/*.js"
+        }
+    }
 }
