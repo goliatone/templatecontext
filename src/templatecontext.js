@@ -7,7 +7,7 @@
  */
 /* jshint strict: false, plusplus: true */
 /*global define: false, require: false, module: false, exports: false */
-(function(root, name, deps, factory) {
+/*(function(root, name, deps, factory) {
     "use strict";
     // Node
     if (typeof deps === 'function') {
@@ -35,7 +35,9 @@
             return mod;
         };
     }
-}(this, "templatecontext", ['keypath', 'extend'], function(keypath, extend) {
+}(this, "templatecontext", ['keypath', 'extend'], function(keypath, extend) {*/
+define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
+
 
     /**
      * Extend method.
@@ -95,11 +97,16 @@
      * Make default options available so we
      * can override.
      */
-    TemplateContext.DEFAULTS = {
+    var DEFAULTS = TemplateContext.DEFAULTS = {
         changeEventGlue: '.',
         changeEventType: 'change',
-        updateEventType: 'update'
+        updateEventType: 'update',
+        initProperties: ['data', 'source', 'states', 'formatters', 'transforms']
     };
+
+    TemplateContext.extend = _extend;
+    TemplateContext.keypath = _keypath;
+    TemplateContext.shimConsole = _shimConsole;
 
     ///////////////////////////////////////////////////
     // PUBLIC METHODS
@@ -117,15 +124,9 @@
 
         this.logger.log('TemplateContext: Init!');
 
-        ['data', 'source', 'states', 'formatters', 'transforms'].forEach(function(key) {
+        DEFAULTS.initProperties.forEach(function(key) {
             this[key] = {};
         }, this);
-
-        // this.data = {};
-        // this.source = {};
-        // this.states = {};
-        // this.formatters = {};
-        // this.transforms = {};
 
         _extend(this, config || {});
 
@@ -152,7 +153,7 @@
                 property: path
             };
 
-        _keypath(this.data, path, value);
+        _keypath.set(this.data, path, value);
 
         //Generic change event: change
         this.emit(this.eventType(this.changeEventType), evt);
@@ -163,7 +164,7 @@
     };
 
     TemplateContext.prototype.get = function(path, defaultValue) {
-        return _keypath(this.data, path, defaultValue);
+        return _keypath.get(this.data, path, defaultValue);
     };
 
     TemplateContext.prototype.has = function(path) {
@@ -250,4 +251,5 @@
     };
 
     return TemplateContext;
-}));
+})
+// );
