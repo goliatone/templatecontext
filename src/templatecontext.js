@@ -93,6 +93,8 @@ define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
         this.init(config);
     };
 
+    TemplateContext.VERSION = '0.1.1';
+
     /**
      * Make default options available so we
      * can override.
@@ -163,10 +165,24 @@ define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
         return this;
     };
 
+    /**
+     * Get the value for a given `path`. Path can
+     * be a keypath to a property.
+     * @param  {String} path         Keypath to prop.
+     * @param  {Mixed} defaultValue Value to be returned if
+     *                              path is undefined.
+     * @return {Mixed}
+     */
     TemplateContext.prototype.get = function(path, defaultValue) {
         return _keypath.get(this.data, path, defaultValue);
     };
 
+    /**
+     * Does the context's `data` object contain a
+     * property found under `path`?
+     * @param  {String}  path Keypath to prop.
+     * @return {Boolean}
+     */
     TemplateContext.prototype.has = function(path) {
         return this.get(path, '__-UNDEF-__') !== '__-UNDEF-__';
     };
@@ -184,13 +200,22 @@ define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
         return this;
     };
 
-
+    /**
+     * Update the context data object by merging in
+     * the provided `data` object.
+     * @param  {Object} data  Object to be merged in
+     * @param  {String|Boolean} state StateID or boolean
+     *                                indicating if a new
+     *                                object should be applied for data.
+     * @return {Object}
+     */
     TemplateContext.prototype.update = function(data, state) {
 
+        //TODO: Should this be ? {} : this.clone();
         var source = state === true ? {} : this.data;
-        // console.log('UPDATE', source)
+
         this.data = _extend(source, this.defaults, this.formatters, data);
-        // console.log('POSTUPDATE', this.data)
+
         if (typeof state === 'string') this.mergeState(state);
 
         this.emit(this.eventType(this.updateEventType));
@@ -199,6 +224,12 @@ define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
         return this.data;
     };
 
+    /**
+     * Apply a stored state to the context.
+     * @param  {String} state State ID
+     * @param  {Boolean} fresh
+     * @return {Boolean}      Was state merged?
+     */
     TemplateContext.prototype.mergeState = function(state, fresh) {
         if (!this.states.hasOwnProperty(state)) return false;
 
@@ -213,6 +244,16 @@ define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
         return true;
     };
 
+    /**
+     * Applies a selected transform by ID.
+     * Transforms are used to modify the context's `data`.
+     * The transform will be executed in the context's
+     * `scope` and it will be provided one argument:
+     * the context `data` object.
+     *
+     * @param  {String} transformId ID of stored transform.
+     * @return {this}
+     */
     TemplateContext.prototype.applyTransforms = function(transformId) {
         if (!this.transforms.hasOwnProperty(transformId)) return;
 
@@ -237,13 +278,22 @@ define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
      */
     TemplateContext.prototype.emit = function() {};
 
+    /**
+     * Helper method to construct event types.
+     * @param  {String} type Event type
+     * @param  {String} path Path to property updated
+     * @return {String}
+     * @private
+     */
     TemplateContext.prototype.eventType = function(type, path) {
         if (!path) return type;
         return [type, path].join(this.changeEventGlue);
     };
 
-
-
+    /**
+     * @see `mergeState`
+     * @deprecated
+     */
     TemplateContext.prototype.merge = function() {
         this.logger.warn('TemplateContext: Deprecated notice. Use mergeState instead.');
         var args = _slice.call(arguments);
