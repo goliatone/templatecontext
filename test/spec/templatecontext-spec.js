@@ -14,6 +14,10 @@ define(['templatecontext'], function(TemplateContext) {
             expect(TemplateContext).toBeTruthy();
         });
 
+        it('should not initialize twice', function() {
+            expect(context.initialized).toBeTruthy();
+        });
+
         it('on create it should be extended with DEFAULT object', function() {
             expect(TemplateContext.DEFAULTS).toBeTruthy();
             var properties = Object.keys(TemplateContext.DEFAULTS);
@@ -35,6 +39,8 @@ define(['templatecontext'], function(TemplateContext) {
                 expect(context[property]).toBe(property + '_TST_');
             });
         });
+
+        //TODO: defaults.
 
         it('update should extend the context object with the passed in data', function() {
             var data = {
@@ -394,6 +400,114 @@ define(['templatecontext'], function(TemplateContext) {
 
         it('should have an logger stub method', function() {
             expect(context.logger).toBeTruthy();
+        });
+
+        it('should handle setting properties', function() {
+            context.set('path', 'value');
+            expect(context.data.hasOwnProperty('path')).toBeTruthy();
+            expect(context.data.path).toEqual('value');
+        });
+
+        it('should handle setting properties using keypaths', function() {
+            context.set('path.to.prop', 'value');
+            expect(context.data.path.to.prop).toEqual('value');
+        });
+
+        it('should notify on set changes', function() {
+            var spy = sinon.spy();
+            context = new TemplateContext({
+                emit: spy
+            });
+            context.set('path', 'value');
+            expect(spy).toHaveBeenCalled();
+        });
+
+        it('should notify on set path changes', function() {
+            var spy = sinon.spy();
+            context = new TemplateContext({
+                emit: spy
+            });
+            context.set('path.to.prop', 'value');
+            expect(spy).toHaveBeenCalled();
+        });
+
+        it('notify on set path changes should send event object', function() {
+            var spy = sinon.spy();
+            context = new TemplateContext({
+                emit: spy,
+                data: {
+                    path: 'oldValue'
+                }
+            });
+
+            context.set('path', 'newValue');
+            var call = spy.getCall(0);
+            var eventType = call.args[0],
+                payload = call.args[1];
+
+            expect(eventType).toEqual(context.changeEventType);
+            expect(payload).toHaveProperties('old', 'value', 'property');
+            expect(payload.old).toEqual('oldValue');
+            expect(payload.value).toEqual('newValue');
+            expect(payload.property).toEqual('path');
+        });
+
+        it('notify on set keypath changes should send event object', function() {
+            var spy = sinon.spy();
+            context = new TemplateContext({
+                emit: spy,
+                data: {
+                    path: {
+                        to: {
+                            prop: 'oldValue'
+                        }
+                    }
+                }
+            });
+
+            context.set('path.to.prop', 'newValue');
+            var call = spy.getCall(0);
+            var eventType = call.args[0],
+                payload = call.args[1];
+
+            expect(eventType).toEqual(context.changeEventType);
+            expect(payload).toHaveProperties('old', 'value', 'property');
+            expect(payload.old).toEqual('oldValue');
+            expect(payload.value).toEqual('newValue');
+            expect(payload.property).toEqual('path.to.prop');
+        });
+
+        it('should get value for path', function() {
+            context = new TemplateContext({
+                data: {
+                    path: 'value'
+                }
+            });
+
+            expect(context.get('path')).toBe('value');
+        });
+
+        it('should get value for keypath', function() {
+            context = new TemplateContext({
+                data: {
+                    path: {
+                        to: {
+                            prop: 'value'
+                        }
+                    }
+                }
+            });
+
+            expect(context.get('path.to.prop')).toBe('value');
+        });
+
+        it('has should return a boolean value', function() {
+            context = new TemplateContext({
+                data: {
+                    path: 'oldValue'
+                }
+            });
+            expect(context.has('path')).toBeTruthy();
         });
     });
 });
