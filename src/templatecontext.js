@@ -103,7 +103,7 @@ define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
         changeEventGlue: '.',
         changeEventType: 'change',
         updateEventType: 'update',
-        initProperties: ['data', 'source', 'states', 'formatters', 'transforms']
+        initProperties: ['data', 'defaults', 'source', 'states', 'formatters', 'transforms']
     };
 
     TemplateContext.extend = _extend;
