@@ -64,7 +64,7 @@ define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
         if (config.autoinitialize) this.init(config);
     };
 
-    TemplateContext.VERSION = '0.1.1';
+    TemplateContext.VERSION = '0.1.2';
 
     /**
      * Make default options available so we
