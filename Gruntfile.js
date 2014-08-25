@@ -164,6 +164,8 @@ module.exports = function(grunt) {
                         var path = require('path');
                         var renamedType = type;
                         if (type === 'js' || type === '__untyped__') renamedType = '';
+                        if (typeof type !== 'string') console.warn('Type is not string', type);
+                        if (typeof component !== 'string') console.warn('Component is not string', component);
                         return path.join(component, renamedType);
                     }
                 }
