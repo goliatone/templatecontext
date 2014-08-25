@@ -147,27 +147,12 @@ module.exports = function(grunt) {
                     dest: '<%= config.dist %>',
                     src: []
                 }]
-            }
-        },
-        bower: {
-            install: {
-                options: {
-                    targetDir: "./<%= config.lib %>",
-                    install: true,
-                    verbose: true,
-                    cleanTargetDir: false,
-                    cleanBowerDir: false,
-                    bowerOptions: {},
-                    layout: function(type, component) {
-                        //grunt-bower-install wants to do component/type/file but
-                        //we need component/file
-                        var path = require('path');
-                        var renamedType = type;
-                        if (type === 'js' || type === '__untyped__') renamedType = '';
-                        if (typeof type !== 'string') console.warn('Type is not string', type);
-                        if (typeof component !== 'string') console.warn('Component is not string', component);
-                        return path.join(component, renamedType);
-                    }
+            },
+            bower: {
+                files: {
+                    'lib/gextend/extend.js': ['.lib_tmp/gextend/src/*.js'],
+                    'lib/requirejs/require.js': ['.lib_tmp/requirejs/require.js'],
+                    'lib/gkeypath/keypath.js': ['.lib_tmp/gkeypath/src/*.js']
                 }
             }
         },
@@ -205,9 +190,16 @@ module.exports = function(grunt) {
         'karma:ci'
     ]);
 
+    grunt.registerTask('travis', [
+        'copy:bower',
+        'clean:server',
+        'connect:test',
+        'karma:ci'
+    ]);
+
     grunt.registerTask('build', [
-        'clean:dist',
-        'jshint',
+        'copy:bower',
+        // 'jshint',
         'test',
         'concat',
         'copy',
