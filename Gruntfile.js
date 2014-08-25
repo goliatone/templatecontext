@@ -161,9 +161,9 @@ module.exports = function(grunt) {
                     layout: function(type, component) {
                         //grunt-bower-install wants to do component/type/file but
                         //we need component/file
-                        var path = require("path");
+                        var path = require('path');
                         var renamedType = type;
-                        if (type === "js") renamedType = "";
+                        if (type === 'js' || type === '__untyped__') renamedType = '';
                         return path.join(component, renamedType);
                     }
                 }
