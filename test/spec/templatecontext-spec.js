@@ -354,7 +354,7 @@ define(['templatecontext'], function(TemplateContext) {
             var out = context.update(data);
 
             expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledTwice();
             expect(spy).toHaveBeenCalledWith(context.updateEventType);
         });
 
@@ -441,7 +441,7 @@ define(['templatecontext'], function(TemplateContext) {
             });
 
             context.set('path', 'newValue');
-            var call = spy.getCall(0);
+            var call = spy.getCall(1);
             var eventType = call.args[0],
                 payload = call.args[1];
 
@@ -466,7 +466,7 @@ define(['templatecontext'], function(TemplateContext) {
             });
 
             context.set('path.to.prop', 'newValue');
-            var call = spy.getCall(0);
+            var call = spy.getCall(1);
             var eventType = call.args[0],
                 payload = call.args[1];
 
