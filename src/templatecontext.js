@@ -71,6 +71,7 @@ define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
      * can override.
      */
     var DEFAULTS = TemplateContext.DEFAULTS = {
+        state: '',
         autoinitialize: true,
         changeEventGlue: '.',
         changeEventType: 'change',
@@ -103,6 +104,8 @@ define("templatecontext", ['keypath', 'extend'], function(keypath, extend) {
         }, this);
 
         _extend(this, config || {});
+
+        this.update(this.data, this.state);
 
         return this;
     };
